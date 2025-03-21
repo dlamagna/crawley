@@ -13,16 +13,13 @@ from crawl4ai import (
     DefaultMarkdownGenerator,
     PruningContentFilter,
 )
-# from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
-# from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
-# from crawl4ai.content_filter_strategy import PruningContentFilter
 import html2text
 import json
 
 from bs4 import BeautifulSoup
 
 # Create output folders if they don't exist
-DATA_FOLDER = "data/crawl4ai/alvolante/"
+DATA_FOLDER = "data/"
 DEBUG_FOLDER = "debug"
 os.makedirs(DATA_FOLDER, exist_ok=True)
 os.makedirs(DEBUG_FOLDER, exist_ok=True)
