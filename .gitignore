@@ -1,0 +1,6 @@
+.venv
+.env
+.git
+*.txt
+*.json
+

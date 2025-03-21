@@ -1,0 +1,6 @@
+asyncio
+requests
+beautifulsoup4
+playwright
+crawl4ai
+html2text
