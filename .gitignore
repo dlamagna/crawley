@@ -4,3 +4,10 @@
 *.txt
 *.json
 
+data/*
+!data/.gitkeep
+debug/*
+!debug/.gitkeep
+
+dev/
+tmp/
