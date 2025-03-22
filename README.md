@@ -97,6 +97,7 @@ options:
   --ext {.md,.txt}      Output file format: .md for Markdown (HTML converted to Markdown) or .txt for plain text.
 ```
 
+Generally, the parsable argumetns have been configured as follows:
 - **--url** or **-u**: The base website URL to crawl (required).  
 - **--max_depth** or **-d**: Maximum depth to crawl.  
   - Use `-1` for unlimited depth.  
