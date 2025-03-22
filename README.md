@@ -39,13 +39,15 @@ Here is an overview of the core files and folders used in this repository:
 
 ## Installation
 
-1. Clone or download this repository:
+1. Clone or download this repository (also can be done with SSH):
    ```bash
    git clone https://github.com/yourusername/yourrepo.git
    cd yourrepo
 
-2. Install dependencies using the setup script:
+2. Install dependencies using the setup script. Setting up a virtual enviornment beforehand is advisable.
     ```bash
+    python3 -m venv .venv
+    source .venv/bin /activate
     ./setup.sh
     ```
 
@@ -69,8 +71,31 @@ python crawl_with_sleep.py --url https://www.example.com \
                            --sleep_timer 1.0 \
                            --ext .md
 ```
+Using the default values and shortened argument commands (see next section), a sample command may also be as follows:
+```bash 
+python crawl_with_sleep.py -u https://www.example.com -d 3
+```
 
 ### Command-Line Arguments
+
+The best way to get the most up to date instructions for a script is with the `-h` function. e.g.
+```
+(.venv) dlamagna@ULP:~/projects/crawley$ python3 crawl_with_sleep.py -h
+usage: crawl_with_sleep.py [-h] -u URL [-d MAX_DEPTH] [-t TIMEOUT] [-s SLEEP_TIMER] [--ext {.md,.txt}]
+
+Crawl a website using Crawl4AI, convert pages to Markdown, save output immediately, and log URL-to-file mapping.
+
+options:
+  -h, --help            show this help message and exit
+  -u URL, --url URL     The base website URL to scrape
+  -d MAX_DEPTH, --max_depth MAX_DEPTH
+                        Maximum depth to crawl (default: 2, use -1 for unlimited, 0 for only the base page).
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout per page request in milliseconds (default: 120000).
+  -s SLEEP_TIMER, --sleep_timer SLEEP_TIMER
+                        Sleep timer in seconds between processing results (default: 1.0).
+  --ext {.md,.txt}      Output file format: .md for Markdown (HTML converted to Markdown) or .txt for plain text.
+```
 
 - **--url** or **-u**: The base website URL to crawl (required).  
 - **--max_depth** or **-d**: Maximum depth to crawl.  
