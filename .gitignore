@@ -3,6 +3,7 @@
 .git
 *.txt
 *.json
+*.zip
 
 data/*
 !data/.gitkeep
