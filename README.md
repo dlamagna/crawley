@@ -89,7 +89,7 @@ Generally, the parsable arguments have been configured as follows:
 - **--sleep_timer** or **-s**: Upper bound of randomized sleep timer in seconds after each process completes (default: `2.0`).  
 - **--ext**: File extension (`.md`,`.txt`,`.html`) for output. Defaults to `.md`.
 - **--concurrent_tasks** or **-c**: Number of concurrent asynchronous tasks for scraping (default: 3).
-  * ***Concurrent execution is currently not supported***
+  * *Concurrent execution is currently not supported byeond the asynchronous nature of Crawl4AI*
 
 ***The best way to get the most up to date instructions for a script is with the `-h` function. e.g.***
 ```
