@@ -49,6 +49,7 @@ Here is an overview of the core files and folders used in this repository:
     ```bash
     python3 -m venv .venv
     source .venv/bin/activate
+    chmod +x setup.sh
     ./setup.sh
     ```
 
