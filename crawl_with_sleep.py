@@ -121,7 +121,7 @@ async def on_result_hook(result:CrawlResult, desired_base, ext, sleep_timer, dat
         async with json_lock:
                 url_to_filename[result.url] = msg
     sleep_rand = random.uniform(0, sleep_timer)
-    log_print(f"[INFO] Sleeping for {sleep_rand:-2f}s...")
+    log_print(f"[INFO] Sleeping for {sleep_rand:.2f}s...")
     await asyncio.sleep(sleep_rand)
 
 
