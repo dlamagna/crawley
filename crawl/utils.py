@@ -35,17 +35,17 @@ def convert_and_wrap(content, ext, width=80, verbose=False):
         converter.body_width = width  # Attempt wrapping at 80 characters
         converted = converter.handle(content)
         if verbose:
-            print("[DEBUG] Raw HTML length:", len(content))
-            print("[DEBUG] Converted Markdown length:", len(converted))
-            print("[DEBUG] Converted Markdown preview:", converted[:200])
+            log_print("[DEBUG] Raw HTML length:", len(content))
+            log_print("[DEBUG] Converted Markdown length:", len(converted))
+            log_print("[DEBUG] Converted Markdown preview:", converted[:200])
         return converted
     elif ext == ".txt":
         soup = BeautifulSoup(content, "html.parser")
         txt = soup.get_text(separator="\n")
         if verbose:
-            print("[DEBUG] Raw HTML length:", len(content))
-            print("[DEBUG] Extracted Text length:", len(txt))
-            print("[DEBUG] Extracted Text preview:", txt[:200])
+            log_print("[DEBUG] Raw HTML length:", len(content))
+            log_print("[DEBUG] Extracted Text length:", len(txt))
+            log_print("[DEBUG] Extracted Text preview:", txt[:200])
         return txt
     else:
         return content
@@ -101,6 +101,9 @@ def convert_to_utc_string(unix_timestamp):
     utc_datetime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return utc_datetime.strftime("%Y_%m_%d_%H_%M_%S%z")
 
+def log_print(message: str):
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    print(f"({timestamp} UTC) {message}")
 
 def clean_text(text):
     """Clean text by removing extra newlines and multiple spaces."""
@@ -132,7 +135,7 @@ def save_content(url, content, depth, ext, base_url, data_folder):
     try:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(content)
-        print(f"[DEBUG] Saved '{filename}' (Size: {os.path.getsize(filename)} bytes)")
+        log_print(f"[DEBUG] Saved '{filename}' (Size: {os.path.getsize(filename)} bytes)")
     except PermissionError as pe:
-        print(f"[ERROR] Permission denied when writing to '{filename}': {pe}")
+        log_print(f"[ERROR] Permission denied when writing to '{filename}': {pe}")
     return filename

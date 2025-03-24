@@ -85,7 +85,7 @@ async def periodic_update(
         async with json_lock:
             with open(debug_file, "w", encoding="utf-8") as f:
                 json.dump(url_to_filename, f, indent=4)
-            print(f"[DEBUG] Periodically updated URL mapping saved to '{debug_file}'")
+            log_print(f"[DEBUG] Periodically updated URL mapping saved to '{debug_file}'")
 
 
 async def on_result_hook(result:CrawlResult, desired_base, ext, sleep_timer, data_folder, _skip_diff_base=False):
@@ -95,18 +95,18 @@ async def on_result_hook(result:CrawlResult, desired_base, ext, sleep_timer, dat
     updates the global mapping, and (optionally) waits between calls for a random duration with specified upper bound
     """
     if result is None:
-        print("[DEBUG] Hook received None result")
+        log_print("[DEBUG] Hook received None result")
         return
     norm_url = normalize_url(result.url)
     if _skip_diff_base and not norm_url.startswith(desired_base):
-        print(
+        log_print(
             f"[DEBUG] Skipping {result.url} (normalized: {norm_url} does not start with {desired_base})"
         )
         return
     if result.success:
         content = convert_crawl_result(result, ext)
         if not content or str(content).strip() == "":
-            print(f"[WARNING] Parsed content from {result.url} is empty.")
+            log_print(f"[WARNING] Parsed content from {result.url} is empty.")
         else:
             depth = int(result.metadata.get("depth", 0) or 0)
             filename = save_content(
@@ -114,14 +114,14 @@ async def on_result_hook(result:CrawlResult, desired_base, ext, sleep_timer, dat
             )
             async with json_lock:
                 url_to_filename[result.url] = filename
-            print(f"[DEBUG] Updated mapping for {result.url}")
+            log_print(f"[DEBUG] Updated mapping for {result.url}")
     else:
         msg = f"[ERROR] Failed to scrape {result.url}: {result.error_message}"
-        print(msg)
+        log_print(msg)
         async with json_lock:
                 url_to_filename[result.url] = msg
     sleep_rand = random.uniform(0, sleep_timer)
-    print(f"[INFO] Sleeping for {sleep_rand:-2f}s...")
+    log_print(f"[INFO] Sleeping for {sleep_rand:-2f}s...")
     await asyncio.sleep(sleep_rand)
 
 
@@ -133,7 +133,7 @@ async def main(
     parsed_url = urlparse(args.url)
     # Normalize the base URL to ensure it ends with a slash.
     desired_base = normalize_url(args.url)
-    print(f"[DEBUG] Base URL set to: {desired_base}")
+    log_print(f"[DEBUG] Base URL set to: {desired_base}")
 
     # Create data directory configured wiht website name:
     data_folder = os.path.join(
@@ -176,7 +176,7 @@ async def main(
         ),
         # concurrent_tasks=args.concurrent_tasks, ## commented out until bugfix examined
     ) as crawler:
-        print(
+        log_print(
             f"[DEBUG] Starting crawl with depth {args.max_depth } and sleep timer of {args.sleep_timer}s between hook calls..."
         )
         async for result in await crawler.arun(args.url, config=crawler_config):
@@ -189,7 +189,7 @@ async def main(
     async with json_lock:
         with open(debug_file, "w", encoding="utf-8") as f:
             json.dump(url_to_filename, f, indent=4)
-    print(f"[DEBUG] Final URL mapping saved to '{debug_file}'")
+    log_print(f"[DEBUG] Final URL mapping saved to '{debug_file}'")
 
 
 if __name__ == "__main__":
