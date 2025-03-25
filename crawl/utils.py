@@ -139,3 +139,6 @@ def save_content(url, content, depth, ext, base_url, data_folder):
     except PermissionError as pe:
         log_print(f"[ERROR] Permission denied when writing to '{filename}': {pe}")
     return filename
+
+def generate_json_filename(desired_base, depth):
+    return f"{desired_base.replace('/', '%')}_depth{depth}_{convert_to_utc_string(int(time.time()))}.json"

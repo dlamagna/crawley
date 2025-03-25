@@ -16,6 +16,7 @@ from crawl4ai import (
     CrawlResult,
 )
 import json
+import sys
 
 from crawl import *
 
@@ -124,7 +125,6 @@ async def on_result_hook(result:CrawlResult, desired_base, ext, sleep_timer, dat
     log_print(f"[INFO] Sleeping for {sleep_rand:.2f}s...")
     await asyncio.sleep(sleep_rand)
 
-
 async def main(
     data_folder=DATA_FOLDER,
     debug_folder=DEBUG_FOLDER,
@@ -133,14 +133,21 @@ async def main(
     parsed_url = urlparse(args.url)
     # Normalize the base URL to ensure it ends with a slash.
     desired_base = normalize_url(args.url)
-    log_print(f"[DEBUG] Base URL set to: {desired_base}")
-
     # Create data directory configured wiht website name:
     data_folder = os.path.join(
         data_folder, parsed_url.netloc, parsed_url.path.replace("/", "%")
     )
     os.makedirs(data_folder, exist_ok=True)
-    debug_file = os.path.join(debug_folder, f"{desired_base.replace('/', '%')}.json")
+    os.makedirs(debug_folder, exist_ok=True)
+
+    sys.stdout = DualLogger(f"{debug_folder}/log_{desired_base.replace('/', '%')}_depth{args.max_depth}")
+    log_print(f"[DEBUG] Base URL set to: {desired_base}")
+
+
+    debug_file = os.path.join(
+        debug_folder,
+        generate_json_filename(desired_base, args.max_depth),
+    )
     
     # Generate a custom filter for URLs: only stay within the specified base
     url_filter = URLPatternFilter(patterns=[f"{desired_base}*"])
