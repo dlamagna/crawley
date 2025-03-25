@@ -69,7 +69,7 @@ Run the main crawler script, specifying your target URL:
 ```bash
 python crawl_with_sleep.py --url https://www.example.com \
                            --max_depth 2 \
-                           --timeout 120000 \
+                           --timeout 300000 \
                            --sleep_timer 1.0 \
                            --ext .md
 ```
@@ -77,6 +77,14 @@ Using the default values and shortened argument commands (see next section), a s
 ```bash 
 python crawl_with_sleep.py -u https://www.example.com -d 3
 ```
+
+### Debug folder
+
+Each crawl will create 2 files within the debug folder:
+- JSON mapping: contains a mapping from URL to filename
+- Logs: saves all the printed logs to a log file
+
+Both of these files will be named with the scraped URL, depth of the crawl, and the execution time in UTC (+0000).
 
 ### Command-Line Arguments
 
