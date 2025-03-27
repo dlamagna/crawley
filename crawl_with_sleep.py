@@ -18,7 +18,16 @@ from crawl4ai import (
 import json
 import sys
 
-from crawl import *
+from crawl_tools import (
+    DualLogger,
+    convert_crawl_result,
+    normalize_url,
+    log_print,
+    save_content,
+    generate_json_filename,
+    filter_queries,
+    response_url,
+)
 
 # Create output folders if they don't exist
 DATA_FOLDER = "data"
@@ -64,14 +73,20 @@ def parse_arguments():
         "-c",
         "--concurrent_tasks",
         type=int,
-        default=3,
-        help="Number of concurrent asynchronous tasks for scraping (default: 3).",
+        default=1,
+        help="Number of concurrent asynchronous tasks for scraping (default: 1).",
     )
     parser.add_argument(
         "--ext",
         choices=[".md", ".txt", ".html"],
         default=".md",
         help="Output file format: .md for Markdown (HTML converted to Markdown) .txt for plain text, .html for raw HTML",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Print output to the terminal in addition to writing to the log file",
     )
     return parser.parse_args()
 
@@ -130,9 +145,10 @@ async def main(
     debug_folder=DEBUG_FOLDER,
 ):
     args = parse_arguments()
-    parsed_url = urlparse(args.url)
+    url = response_url(args.url)
+    parsed_url = urlparse(url)
     # Normalize the base URL to ensure it ends with a slash.
-    desired_base = normalize_url(args.url)
+    desired_base = filter_queries(url)
     # Create data directory configured wiht website name:
     data_folder = os.path.join(
         data_folder, parsed_url.netloc, parsed_url.path.replace("/", "%")
@@ -140,8 +156,14 @@ async def main(
     os.makedirs(data_folder, exist_ok=True)
     os.makedirs(debug_folder, exist_ok=True)
 
-    sys.stdout = DualLogger(f"{debug_folder}/log_{desired_base.replace('/', '%')}_depth{args.max_depth}")
-    log_print(f"[DEBUG] Base URL set to: {desired_base}")
+    # Setup logging
+    sys.stdout = DualLogger(
+        f"{debug_folder}/log_{desired_base.replace('/', '%')}_depth{args.max_depth}",
+        verbose=args.verbose,
+    )
+    log_print(json.dumps(vars(args), indent=4))
+    log_print(f"[DEBUG] Starting crawl of {url}")
+    log_print(f"[DEBUG] Fitlered base URL set to: {desired_base}")
 
 
     debug_file = os.path.join(
@@ -186,7 +208,7 @@ async def main(
         log_print(
             f"[DEBUG] Starting crawl with depth {args.max_depth } and sleep timer of {args.sleep_timer}s between hook calls..."
         )
-        async for result in await crawler.arun(args.url, config=crawler_config):
+        async for result in await crawler.arun(url, config=crawler_config):
             await on_result_hook(
                 result, desired_base, args.ext, args.sleep_timer, data_folder
             )
