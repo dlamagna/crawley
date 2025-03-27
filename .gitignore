@@ -9,8 +9,6 @@ data/*
 !data/.gitkeep
 debug/*
 !debug/.gitkeep
-scripts/*
-!scripts/.gitkeep
 
 dev/
 tmp/
