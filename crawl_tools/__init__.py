@@ -19,3 +19,8 @@ from crawl_tools.interactions_js import (
     scroll_and_next,
     wait_for_new_page
 )
+from crawl_tools.hooks import (
+    local_result_hook,
+    api_result_hook,
+    periodic_json_update,
+)
