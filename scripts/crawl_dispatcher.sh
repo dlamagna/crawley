@@ -8,6 +8,7 @@ set +a
 
 echo "[INFO] Recupero lista scraping task da $TASK_URL..."
 TASKS=$(curl -sL -H "User-Agent: Mozilla/5.0" "$TASK_URL")
+echo $TASKS | jq
 
 # Controllo: se la e' vuota o contiene "error"
 if [ -z "$TASKS" ] || echo "$TASKS" | jq 'has("error")' | grep -q true; then
