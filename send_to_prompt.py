@@ -23,7 +23,6 @@ import requests
 import json
 from pathlib import Path
 
-# Import your existing logging classes/functions
 from crawl_tools import DualLogger, log_print
 
 
@@ -84,7 +83,6 @@ def send_file_to_api(file_path: str, prompt_url: str) -> dict:
         ]
     }
 
-    # Required headers, as per your updated request format
     headers = {
         "Content-Type": "application/json",
         "X-Authorization": "freedom"
