@@ -6,8 +6,7 @@
 #   ./test_curl_chat_format.sh <file_path> <prompt_url>
 #
 # Example:
-#   ./test_curl_chat_format.sh ./example_content.md https://app.bysim.ai/api/glacomscracontact
-#
+#   ./test_curl_chat_format.sh ./example_content.md https://example.com
 # This sends a POST request with the JSON:
 # {
 #   "chat": [
