@@ -9,6 +9,7 @@ data/*
 !data/.gitkeep
 debug/*
 !debug/.gitkeep
+prompted
 
 dev/
 tmp/

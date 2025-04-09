@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
-from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
-
+from crawl4ai import BFSDeepCrawlStrategy, CrawlerRunConfig, CacheMode
+from crawl_tools.interactions_js import wait_for_new_page, scroll_and_next
 # from crawl.utils import normalize_url
 
 
@@ -11,6 +11,18 @@ def normalize_url(url):
         netloc = netloc[4:]
     path = parsed.path.rstrip("/")  # Remove trailing slash
     return f"{parsed.scheme}://{netloc}{path}/"  # Always end with a slash
+
+CustomConfig = CrawlerRunConfig(
+    # ... other settings ...
+    session_id="some_session",
+    js_code=scroll_and_next,
+    wait_for=wait_for_new_page,
+    js_only=True,
+    cache_mode=CacheMode.BYPASS,
+)
+
+class CustomPaginationConfig(CrawlerRunConfig):
+    pass
 
 
 class CustomFilteredCrawlStrategy(BFSDeepCrawlStrategy):

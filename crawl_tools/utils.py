@@ -7,6 +7,12 @@ import os
 from datetime import datetime, timezone
 import textwrap
 from crawl4ai import CrawlResult
+import requests
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 def split_into_paragraphs(content, ext, width=80):
@@ -51,7 +57,7 @@ def convert_and_wrap(content, ext, width=80, verbose=False):
         return content
 
 
-def convert_crawl_result(result: CrawlResult, ext, cleaned=False):
+def convert_crawl_result(result: CrawlResult, ext, cleaned=True):
     if ext == ".html":
         if cleaned:
             return result.fit_html
@@ -73,6 +79,40 @@ def normalize_url(url):
     path = parsed.path.rstrip("/")
     return f"{parsed.scheme}://{netloc}{path}/"
 
+
+def is_query_url(url):
+    return "?" in str(url)
+
+
+def filter_queries(url):
+    url = normalize_url(url)
+    if is_query_url:
+        return url.split("?")[0]
+    
+
+def response_url(url):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    # Initialize the Chrome driver (ensure chromedriver is in PATH)
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    try:
+        driver.set_page_load_timeout(300)
+        driver.get(url)
+        # Wait to ensure dynamic content loads.
+        time.sleep(5)
+        # Get the final URL after any redirections.
+        final_url = driver.current_url
+        driver.quit()
+        return final_url
+    
+    except TimeoutException as te:
+        driver.quit()
+        raise Exception("URL not accessible due to timeout: " + str(te))
+    except Exception as e:
+        driver.quit()
+        raise Exception("URL not accessible: " + str(e))    
 
 def convert_content(content, ext):
     """Convert HTML content to Markdown or plain text."""
@@ -96,10 +136,10 @@ def convert_to_utc_string(unix_timestamp):
         unix_timestamp (int): The Unix timestamp (seconds since the epoch).
 
     Returns:
-        str: The formatted UTC timestamp, e.g. "YYYY_MM_DD_HH_MM_SS+0000".
+        str: The formatted UTC timestamp, e.g. "YYYYMMDD_HHMMSS+0000".
     """
     utc_datetime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return utc_datetime.strftime("%Y_%m_%d_%H_%M_%S%z")
+    return utc_datetime.strftime("%Y%m%d_%H%M%S%z")
 
 def log_print(message: str):
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -142,3 +182,42 @@ def save_content(url, content, depth, ext, base_url, data_folder):
 
 def generate_json_filename(desired_base, depth):
     return f"{desired_base.replace('/', '%')}_depth{depth}_{convert_to_utc_string(int(time.time()))}.json"
+
+
+def send_file_to_api(file_path: str, prompt_url: str) -> dict:
+    """
+    Reads the .md file at file_path, sends it to the prompt_url via POST,
+    using the updated JSON format:
+    {
+      "chat": [
+        { "role": "user", "content": "<file contents>" }
+      ]
+    }
+    and returns the JSON response.
+    """
+    # Read markdown content
+    with open(file_path, "r", encoding="utf-8") as f:
+        markdown_content = f.read()
+
+    # Prepare request payload
+    payload = {
+        "chat": [
+            {
+                "role": "user",
+                "content": markdown_content
+            }
+        ]
+    }
+
+    # Required headers, as per your updated request format
+    headers = {
+        "Content-Type": "application/json",
+        "X-Authorization": "freedom"
+    }
+
+    # Send request
+    response = requests.post(prompt_url, json=payload, headers=headers)
+    response.raise_for_status()  # Raise HTTPError if the request was unsuccessful
+
+    # Return parsed JSON response
+    return response.json()
