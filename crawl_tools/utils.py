@@ -182,3 +182,42 @@ def save_content(url, content, depth, ext, base_url, data_folder):
 
 def generate_json_filename(desired_base, depth):
     return f"{desired_base.replace('/', '%')}_depth{depth}_{convert_to_utc_string(int(time.time()))}.json"
+
+
+def send_file_to_api(file_path: str, prompt_url: str) -> dict:
+    """
+    Reads the .md file at file_path, sends it to the prompt_url via POST,
+    using the updated JSON format:
+    {
+      "chat": [
+        { "role": "user", "content": "<file contents>" }
+      ]
+    }
+    and returns the JSON response.
+    """
+    # Read markdown content
+    with open(file_path, "r", encoding="utf-8") as f:
+        markdown_content = f.read()
+
+    # Prepare request payload
+    payload = {
+        "chat": [
+            {
+                "role": "user",
+                "content": markdown_content
+            }
+        ]
+    }
+
+    # Required headers, as per your updated request format
+    headers = {
+        "Content-Type": "application/json",
+        "X-Authorization": "freedom"
+    }
+
+    # Send request
+    response = requests.post(prompt_url, json=payload, headers=headers)
+    response.raise_for_status()  # Raise HTTPError if the request was unsuccessful
+
+    # Return parsed JSON response
+    return response.json()
